@@ -1,82 +1,107 @@
 # Govind Bhavan Portal
 
-> A comprehensive, modern, and highly-scalable Student & Administration Portal for Govind Bhavan.
+> A robust, full-stack student management system engineered for high-performance residential governance.
 
-![Govind Bhavan Homepage](./public/homepage.png)
+![Govind Bhavan Homepage](./public/homepage_hero.png)
 
-## Overview
+## 🏗 Architecture & Design Patterns
 
-The Govind Bhavan Portal is an end-to-end management solution designed to streamline the operations and enhance the residential experience of students at Govind Bhavan. It features separate, highly secure dashboards for Students and Administrators, with strict role-based access controls and optimized data retrieval.
+The Govind Bhavan Portal is built using a decoupled, full-stack architecture designed for scalability, security, and maintainable state management.
 
-## Features
+### System Overview
+- **Backend**: Node.js Express server providing a RESTful API layer with Mongoose for MongoDB data modeling.
+- **Frontend**: React 19 optimized with Vite for lightning-fast HMR and low-latency production builds.
+- **Styling**: Tailwind CSS v4 utilizing a custom tokens-based design system for UI consistency.
+- **State Management**: Atomic React Context providers segmented by domain (Auth, Mess, Student Data).
 
-### 👨‍🎓 Student Portal
-- **Dashboard Overview:** Real-time visibility into active complaints, upcoming events, and personal room details.
-- **Complaint Management:** Identity-locked complaint submission with granular tracking (Open/In Progress/Resolved).
-- **Mess & Dining:** Interactive weekly mess menu with a student-driven daily rating system (upvotes/downvotes).
-- **Facilities & Rebates:** Direct requests for Mess Rebates enforcement of a 3-day minimum duration protocol.
-- **Guest Bookings:** Chronologically validated guest room bookings.
-- **Event Registration:** Seamless one-click registration with real-time capacity and expired-event lockouts.
+```mermaid
+graph TD
+    subgraph Client ["Frontend (React 19 + Vite)"]
+        UI[User Interface Components]
+        Contexts[Context API State Management]
+        Axios[Axios API Client]
+    end
 
-### 🔐 Admin Portal
-- **Centralized Command Center:** At-a-glance KPI metrics across all student interactions.
-- **Noticeboard Management:** Full CRUD operations for global notices, announcements, and pinned alerts.
-- **Data Export:** Cross-browser compatible one-click CSV exports for students, complaints, rebates, and guest lists.
-- **Approvals & Overrides:** Instant confirm/reject actions for mess rebates and guest accommodations.
-- **Event Administration:** Track participant lists, view enrollment branches/rooms, and manage waitlists.
-- **Master Mess Menu Editor:** A unified interface to set the entire week's menu and review student sentiment statistics.
+    subgraph Server ["Backend (Node.js + Express)"]
+        Routes[Express Routes & Middleware]
+        Controllers[Business Logic Controllers]
+        Mongoose[Mongoose ODM]
+    end
 
-## Tech Stack
+    subgraph Data ["Persistence"]
+        MongoDB[(MongoDB Atlas)]
+    end
 
-The application is built leveraging a modern, high-performance stack:
+    UI --> Contexts
+    Contexts --> Axios
+    Axios -- REST API --> Routes
+    Routes --> Controllers
+    Controllers --> Mongoose
+    Mongoose <--> MongoDB
+```
 
-- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4
-- **State & Context:** React Context API (Modularized by feature domain)
-- **Animation & UI:** Framer Motion (`motion/react`), Lucide Icons
-- **Backend Infrastructure:** Express.js, TypeScript, TSX
-- **Database:** MongoDB via Mongoose Models
-- **Form Validation:** React Hook Form + Zod
+## 🚀 Key Technical Features
 
-## Getting Started
+### 🔐 Security & Role-Based Access (RBAC)
+- **Granular Scoping**: All API endpoints and frontend views are strictly scoped based on the authenticated user's role (`Admin` vs. `Student`) and unique MongoDB `_id`.
+- **Validation**: Mission-critical data mutations (Guest Bookings, Mess Rebates, Event Registration) are protected by server-side Zod validators to ensure business logic integrity.
+
+### 📊 Data Intelligence & Management
+- **Enterprise CSV Export**: A custom-built serialization utility leveraging the `file-saver` engine to bypass cross-browser blob restrictions, ensuring clean, formatted data exports.
+- **Dynamic Mess Management**: A rating-weighted dining system allowing students to provide real-time sentiment analysis for daily meals.
+- **Event Orchestration**: High-concurrency event registration system with real-time capacity monitoring and automated expiry tracking.
+
+### 🛠 Tech Stack Details
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS v4 |
+| **Animation** | Framer Motion (`motion/react`) |
+| **Backend** | Node.js, Express.js, TypeScript, TSX |
+| **Database** | MongoDB (Atlas), Mongoose |
+| **Data Export** | file-saver, CSV Data URIs |
+| **Validation** | React Hook Form, Zod |
+
+## 📦 Getting Started
 
 ### Prerequisites
 - Node.js (v18+)
-- MongoDB (Running locally or a set `MONGODB_URI`)
+- MongoDB Atlas (or a local MongoDB instance)
 
-### Installation
+### Installation & Execution
 
-1. Install dependencies:
+1. **Clone & Install**:
    ```bash
    npm install
    ```
 
-2. Configure environment variables in `.env.local`:
+2. **Environment Configuration**:
+   Create a `.env.local` file in the root directory:
    ```env
-   MONGODB_URI=mongodb://localhost:27017/govind_bhawan
-   JWT_SECRET=your_super_secret_key_here
+   MONGODB_URI=your_mongodb_connection_string
+   JWT_SECRET=your_production_grade_secret
    ```
 
-3. Seed the database (Initial setup):
+3. **Initialize Database**:
+   Populate the database with a professional seed dataset:
    ```bash
    npm run seed
    ```
 
-4. Run the development stack (Client + Server concurrently):
+4. **Launch Application**:
+   Starts both the React development server and the Express API concurrently:
    ```bash
    npm run dev:full
    ```
 
-### Production Build
+## 🔌 API Documentation Interface
 
-To build the project for production, run:
-```bash
-npm run build
-```
-
-## Data Consistency & Security
-- **Role-Based Scoping:** API routes and context providers automatically scope data logic based on the authenticated user's role and MongoDB `_id`.
-- **Bulletproof Exports:** Custom CSV export utility utilizing `file-saver` and Data URIs to bypass browser restrictions and gracefully serialize complex objects, arrays, and Unicode characters.
-- **Type Safety:** 100% strict TypeScript enforcement (`tsc --noEmit` verified).
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/auth/request-otp` | `POST` | Initiates OTP-based authentication flow. |
+| `/api/students` | `GET` | Paginated retrieval of student records (Admin only). |
+| `/api/complaints` | `POST` | Identity-locked complaint submission for students. |
+| `/api/rebates` | `PATCH` | State mutation for mess rebate requests. |
+| `/api/messmenu` | `PUT` | Global update for the weekly dining schedule. |
 
 ---
-*Developed with ❤️ for the residents of Govind Bhavan.*
+*Built with precision for the Govind Bhavan student community.*
